@@ -1,17 +1,18 @@
-import { useState } from "react";
-import { months } from "./utils";
 import "./Calendar.css";
 
 interface CalendarProps {
   setCurrentDay: (currentDay: number) => void;
   currentDay: number;
-  date: Date
+  date: Date;
+  daysOfMonth: number[];
 }
 
-export const Calendar: React.FC<CalendarProps> = ({currentDay, setCurrentDay, date}) => { 
-  let daysOfMonth: number[] = [];
-  let days = months[date.getMonth()];
-
+export const Calendar: React.FC<CalendarProps> = ({
+  currentDay,
+  setCurrentDay,
+  date,
+  daysOfMonth,
+}) => {
   const getDayOfWeek = (day: number) => {
     if (day === 1) {
       return "Mon";
@@ -29,13 +30,6 @@ export const Calendar: React.FC<CalendarProps> = ({currentDay, setCurrentDay, da
       return "Sun";
     }
   };
-  while (days > 0) {
-    daysOfMonth.push(days);
-    days -= 1;
-    console.log(days);
-  }
-
-  daysOfMonth.reverse();
 
   return (
     <div>
