@@ -1,0 +1,19 @@
+.notes {
+    width: 50%;
+}
+
+.notes .circle{
+    background-color: white;
+}
+
+.notes h2{
+    text-align: center;
+}
+
+.note{
+    display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0;
+}

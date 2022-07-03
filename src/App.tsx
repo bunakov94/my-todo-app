@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Calendar } from "./Components";
+import { Calendar, Todos, Notes } from "./Components";
 import { leapMonths, months } from "./Components/Calendar/utils";
-import { Todos } from "./Components/Todos/Todos";
 import "./App.css";
 
 function App() {
@@ -59,6 +58,12 @@ function App() {
           currentYear={currentYear}
         />
         <div className="content-divider"></div>
+        <Notes
+          currentDay={currentDay}
+          daysOfMonth={daysOfMonth}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+        />
       </div>
     </div>
   );
