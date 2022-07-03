@@ -1,10 +1,34 @@
 .circle {
   display: inline-block;
   margin-right: 5px;
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background-color: #7a8fff50;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle.a-priority {
+  background-color: #ffdede;
+}
+
+.circle.b-priority {
+  background-color: #ffedc0;
+}
+
+.circle.c-priority {
+  background-color: #d8ffca;
+}
+
+.todos {
+  width: 50%;
+}
+
+.todos h2 {
+  text-align: center;
 }
 
 div.done {
@@ -12,9 +36,11 @@ div.done {
 }
 
 button {
+  font-size: 20px;
   background-color: #7a8fff50;
   border: none;
   height: 32px;
+  width: 32px;
   padding: 0 10px;
   margin-left: 5px;
   border-radius: 5px;
@@ -22,15 +48,35 @@ button {
 }
 
 button.button {
-  height: 24px;
-  margin: 10px;
+  position: relative;
+  font-weight: 900;
+  bottom: 2px;
+  height: 10px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: gainsboro;
+  transition: all ease 0.5s;
+}
+
+button.button:hover {
+  color: black;
 }
 
 input {
+  font-size: 15px;
   outline: none;
   padding: 5px;
   border-radius: 5px;
   border: 3px solid #7a8fff50;
+  width: calc(100% - 50px);
+}
+
+form {
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .todo {
@@ -38,5 +84,27 @@ input {
   flex-direction: row;
   align-items: center;
   text-align: center;
-  cursor: pointer;
+  margin: 10px 0;
+}
+
+.modal {
+  z-index: 10;
+  background-color: #7a8fff50;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content{
+  padding: 30px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
 }

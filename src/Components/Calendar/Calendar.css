@@ -7,8 +7,8 @@ ul.current-month {
   flex-wrap: wrap;
 }
 
-h2.month-name{
-    text-align: center;
+h2.month-name {
+  text-align: center;
 }
 .arrow {
   font-size: 20px;
@@ -47,3 +47,4 @@ h2.month-name{
   border: none;
   background-color: black;
 }
+

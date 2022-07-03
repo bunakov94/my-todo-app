@@ -8,6 +8,7 @@ function App() {
   const [date, setDate] = useState<Date>(new Date());
   const [currentDay, setCurrentDay] = useState<number>(date.getDate());
   const [currentMonth, setCurrentMonth] = useState<number>(date.getMonth());
+  const [currentYear, setCurrentYear] = useState<number>(date.getFullYear());
   const checkIfLeapYear = (year: number) => {
     if (year % 4 === 0 && year % 100 !== 0) {
       return true;
@@ -26,12 +27,12 @@ function App() {
   }
 
   useEffect(() => {
-    if (checkIfLeapYear(date.getFullYear())) {
+    if (checkIfLeapYear(currentYear)) {
       days = leapMonths[currentMonth];
     } else {
       days = months[currentMonth];
     }
-  }, [currentMonth]);
+  }, [currentMonth, currentYear, currentDay]);
 
   while (days > 0) {
     daysOfMonth.push(days);
@@ -50,7 +51,15 @@ function App() {
         date={date}
         daysOfMonth={daysOfMonth}
       />
-      <Todos currentDay={currentDay} daysOfMonth={daysOfMonth} />
+      <div className="content">
+        <Todos
+          currentDay={currentDay}
+          daysOfMonth={daysOfMonth}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+        />
+        <div className="content-divider"></div>
+      </div>
     </div>
   );
 }
