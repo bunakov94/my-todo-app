@@ -49,6 +49,7 @@ function App() {
         setCurrentDay={setCurrentDay}
         date={date}
         daysOfMonth={daysOfMonth}
+        currentYear={currentYear}
       />
       <div className="content">
         <Todos

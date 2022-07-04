@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import "./Calendar.css";
+import { leapMonths, months } from "./utils";
 
 interface CalendarProps {
   setCurrentDay: (currentDay: number) => void;
@@ -6,6 +8,7 @@ interface CalendarProps {
   date: Date;
   daysOfMonth: number[];
   currentMonth: number;
+  currentYear: number;
   setCurrentMonth: (currentMonth: number) => void;
 }
 
@@ -16,6 +19,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   daysOfMonth,
   setCurrentMonth,
   currentMonth,
+  currentYear,
 }) => {
   const getDayOfWeek = (day: number) => {
     if (day === 1) {
@@ -63,6 +67,26 @@ export const Calendar: React.FC<CalendarProps> = ({
     }
   };
 
+  const checkIfLeapYear = (year: number) => {
+    if (year % 4 === 0 && year % 100 !== 0) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (checkIfLeapYear(currentYear)) {
+      if (leapMonths[currentMonth] < currentDay) {
+        setCurrentDay(leapMonths[currentMonth]);
+      }
+    } else {
+      if (months[currentMonth] < currentDay) {
+        setCurrentDay(months[currentMonth]);
+      }
+    }
+  }, [currentMonth]);
+
   return (
     <div>
       <h2 className="month-name">{getMonth(currentMonth)}</h2>
@@ -85,7 +109,9 @@ export const Calendar: React.FC<CalendarProps> = ({
             <li
               className={day === currentDay ? "active day" : "day"}
               key={day}
-              onClick={() => setCurrentDay(day)}
+              onClick={() => {
+                setCurrentDay(day);
+              }}
             >
               {day}
               <div>
