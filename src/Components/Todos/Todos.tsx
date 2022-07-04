@@ -1,201 +1,179 @@
 import "./Todos.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../../firebase/firebase-config";
 
 interface TodosProps {
   currentDay: number;
   currentMonth: number;
   currentYear: number;
-  daysOfMonth: number[];
 }
 
 type TodoType = {
   done: boolean;
   text: string;
   priority: string;
+  id: string;
 };
+
 type TodosType = {
   month: number;
   year: number;
   day: number;
   todos: TodoType[];
+  id: string;
 };
 
 export const Todos: React.FC<TodosProps> = ({
   currentDay,
-  daysOfMonth,
   currentMonth,
   currentYear,
 }) => {
-  const [todos, setTodos] = useState<TodosType[]>(
-    daysOfMonth.map((day) => ({
-      day,
-      month: currentMonth,
-      year: currentYear,
-      todos: [],
-    }))
-  );
-  const [todo, setTodo] = useState<TodoType>();
+  const [allTodos, setAllTodos] = useState<TodosType[]>([]);
   const [value, setValue] = useState<string>("");
-  const [error, setError] = useState<string>("");
   const [editedText, setEditedText] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [todoWasDeleted, setTodoWasDeleted] = useState(false);
+  const [priorityWasChanged, setPriorityWasChanged] = useState(false);
+  const [todoWasDone, setTodoWasDone] = useState(false);
+  const [todoWasUpdated, setTodoWasUpdated] = useState(false);
+  const [todoWasAdded, setTodoWasAdded] = useState(false);
+  const [ids, setIds] = useState<any>({});
+  const [priority, setPriority] = useState<string>("None");
+  const todosCollectionRef = collection(db, "all-todos");
 
-  const handleDoneTodo = (t: TodoType) => {
-    let [newTodos] = todos.filter(
+  const getTodos = async () => {
+    const data = await getDocs(todosCollectionRef);
+    console.log(data.docs.map((doc: any) => ({ ...doc.data(), id: doc.id })));
+    setAllTodos(data.docs.map((doc: any) => ({ ...doc.data(), id: doc.id })));
+    console.log(allTodos);
+  };
+
+  const handleDeleteTodo = async () => {
+    const todo = await doc(db, "all-todos", ids.dateId);
+    const newFields = {
+      todos: allTodos
+        .filter((t: any) => t.id === ids.dateId)[0]
+        .todos.filter((td: any) => td.id !== ids.todoId),
+    };
+    await updateDoc(todo, newFields);
+    ids({});
+    setTodoWasDeleted(false);
+  };
+
+  const handleAddTodo = async () => {
+    let [todaysTodos] = allTodos.filter(
       (todo) =>
         todo.day === currentDay &&
         todo.month === currentMonth &&
         todo.year === currentYear
     );
-    let [doneTodo] = newTodos.todos.filter((todo) => todo.text === t.text);
-    if (!doneTodo.done) {
-      doneTodo.done = true;
-      newTodos.todos = newTodos.todos.map((todo) =>
-        todo.text === t.text ? doneTodo : todo
-      );
-      setTodos(
-        todos.map((todo) =>
-          currentDay === todo.day &&
-          todo.month === currentMonth &&
-          todo.year === currentYear
-            ? newTodos
-            : todo
-        )
-      );
+    if (!todaysTodos) {
+      //@ts-ignore
+      todaysTodos = {
+        day: currentDay,
+        month: currentMonth,
+        year: currentYear,
+        todos: [
+          {
+            text: value,
+            id: Date.now().toString(),
+            priority: "None",
+            done: false,
+          },
+        ],
+      };
+      await addDoc(todosCollectionRef, todaysTodos);
+      setTodoWasAdded(false);
+      setValue("");
     } else {
-      doneTodo.done = false;
-      newTodos.todos = newTodos.todos.map((todo) =>
-        todo.text === t.text ? doneTodo : todo
-      );
-      setTodos(
-        todos.map((todo) =>
-          currentDay === todo.day &&
-          todo.month === currentMonth &&
-          todo.year === currentYear
-            ? newTodos
-            : todo
-        )
-      );
+      const todo = await doc(db, "all-todos", todaysTodos.id);
+      todaysTodos.todos.push({
+        text: value,
+        id: Date.now().toString(),
+        priority: "None",
+        done: false,
+      });
+      const newFields = {
+        todos: todaysTodos.todos,
+      };
+      await updateDoc(todo, newFields);
+      setTodoWasAdded(false);
+      setValue("");
     }
   };
 
-  const handleDelete = (t: TodoType) => {
-    let [newTodos] = todos.filter(
-      (todo) =>
-        todo.day === currentDay &&
-        todo.month === currentMonth &&
-        todo.year === currentYear
-    );
-    newTodos.todos = newTodos.todos.filter((todo) => todo.text !== t.text);
-    setTodos(
-      todos.map((todo) =>
-        todo.day === currentDay &&
-        todo.month === currentMonth &&
-        todo.year === currentYear
-          ? newTodos
-          : todo
-      )
-    );
+  const handleUpdateTodo = async () => {
+    setShowModal(false)
+    const todo = await doc(db, "all-todos", ids.dateId);
+    const [changedTodo] = allTodos
+      .filter((t: any) => t.id === ids.dateId)[0]
+      .todos.filter((td) => td.id === ids.todoId);
+    changedTodo.text = editedText
+    let todos = allTodos
+    .filter((t: any) => t.id === ids.dateId)[0]
+    .todos
+    todos = todos.map(todo => todo.id === changedTodo.id ? changedTodo : todo)
+    await updateDoc(todo, {todos})
+    setTodoWasUpdated(false)
   };
 
-  const handleAddTodo = () => {
-    if (value !== "") {
-      let [newTodos]: TodosType[] | undefined = todos.filter(
-        (todo) =>
-          todo.day === currentDay &&
-          todo.month === currentMonth &&
-          todo.year === currentYear
-      );
-      if (
-        newTodos &&
-        !newTodos.todos.filter((todo) => todo.text === value)[0]
-      ) {
-        newTodos.todos.push({
-          done: false,
-          text: value,
-          priority: "None",
-        });
-        setError("");
-        setValue("");
-        setTodos(
-          todos.map((todo) =>
-            currentDay === todo.day &&
-            todo.month === currentMonth &&
-            todo.year === currentYear
-              ? newTodos
-              : todo
-          )
-        );
-      } else if (newTodos) {
-        setError("You can't have two same tasks");
-      } else {
-        newTodos = {
-          day: currentDay,
-          month: currentMonth,
-          year: currentYear,
-          todos: [
-            {
-              done: false,
-              text: value,
-              priority: "None",
-            },
-          ],
-        };
-        setTodos([...todos, newTodos]);
-      }
+  const handleDoneTodo = async () => {
+    const todo = await doc(db, "all-todos", ids.dateId);
+    const [doneTodo] = allTodos
+      .filter((t: any) => t.id === ids.dateId)[0]
+      .todos.filter((td) => td.id === ids.todoId);
+    doneTodo.done = true
+    let todos = allTodos
+    .filter((t: any) => t.id === ids.dateId)[0]
+    .todos
+    todos = todos.map(todo => todo.id === doneTodo.id ? doneTodo : todo)
+    await updateDoc(todo, {todos})
+    setTodoWasDone(false)
+  };
+
+  const handleChangePriority = async (priority: string) => {
+    const todo = await doc(db, "all-todos", ids.dateId);
+    const [changedTodo] = allTodos
+      .filter((t: any) => t.id === ids.dateId)[0]
+      .todos.filter((td) => td.id === ids.todoId);
+    changedTodo.priority = priority
+    let todos = allTodos
+    .filter((t: any) => t.id === ids.dateId)[0]
+    .todos
+    todos = todos.map(todo => todo.id === changedTodo.id ? changedTodo : todo)
+    await updateDoc(todo, {todos})
+    setPriorityWasChanged(false)
+  };
+
+  useEffect(() => {
+    console.log(allTodos);
+    if (todoWasAdded) {
+      handleAddTodo();
+    } else if (todoWasDeleted) {
+      handleDeleteTodo();
+    } else if (todoWasUpdated) {
+      handleUpdateTodo();
+    } else if (priorityWasChanged) {
+      handleChangePriority(priority);
+    } else if (todoWasDone) {
+      handleDoneTodo();
     }
-  };
-
-  const handleEdit = (t: TodoType) => {
-    setShowModal(false);
-    let [newTodos]: TodosType[] | undefined = todos.filter(
-      (todo) =>
-        todo.day === currentDay &&
-        todo.month === currentMonth &&
-        todo.year === currentYear
-    );
-
-    let [editedTodo] = newTodos.todos.filter((todo) => todo.text === t.text);
-    editedTodo.text = editedText;
-    newTodos.todos = newTodos.todos.map((todo) =>
-      editedText === t.text ? editedTodo : todo
-    );
-    setTodos(
-      todos.map((todo) =>
-        currentDay === todo.day &&
-        todo.month === currentMonth &&
-        todo.year === currentYear
-          ? newTodos
-          : todo
-      )
-    );
-  };
-
-  const handleChangePriority = (p: string, t: TodoType) => {
-    let [newTodos]: TodosType[] | undefined = todos.filter(
-      (todo) =>
-        todo.day === currentDay &&
-        todo.month === currentMonth &&
-        todo.year === currentYear
-    );
-
-    let [editedTodo] = newTodos.todos.filter((todo) => todo.text === t.text);
-    editedTodo.priority = p;
-    newTodos.todos = newTodos.todos.map((todo) =>
-      t.text === todo.text ? editedTodo : todo
-    );
-    setTodos(
-      todos.map((todo) =>
-        currentDay === todo.day &&
-        todo.month === currentMonth &&
-        todo.year === currentYear
-          ? newTodos
-          : todo
-      )
-    );
-
-  }
-
+    getTodos();
+  }, [
+    todoWasAdded,
+    todoWasDeleted,
+    todoWasUpdated,
+    priorityWasChanged,
+    todoWasDone,
+  ]);
+  debugger;
   return (
     <div className="todos">
       {showModal && (
@@ -204,7 +182,7 @@ export const Todos: React.FC<TodosProps> = ({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                todo && handleEdit(todo);
+                setTodoWasUpdated(true);
               }}
             >
               <input
@@ -220,35 +198,43 @@ export const Todos: React.FC<TodosProps> = ({
       )}
 
       <h2>Todos</h2>
-      {todos.map((todo) =>
-        todo.day === currentDay
-          ? todo.todos.map(
-              (t) =>
-                todo.day === currentDay &&
-                todo.month === currentMonth &&
-                todo.year === currentYear && (
+
+      {allTodos.map((todaysTodos) =>
+        todaysTodos &&
+        todaysTodos.day === currentDay &&
+        todaysTodos.todos &&
+        todaysTodos.todos !== []
+          ? todaysTodos?.todos?.map(
+              (todo) =>
+                todaysTodos.day === currentDay &&
+                todaysTodos.month === currentMonth &&
+                todaysTodos.year === currentYear && (
                   <div className="todo">
                     <span
-                      onClick={() => handleDoneTodo(t)}
+                      onClick={() => {
+                        setTodoWasDone(true);
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
+                      }}
                       className={
-                        t.priority === "A"
+                        todo.priority === "A"
                           ? "circle a-priority"
-                          : t.priority === "B"
+                          : todo.priority === "B"
                           ? "circle b-priority"
-                          : t.priority === "C"
+                          : todo.priority === "C"
                           ? "circle c-priority"
                           : "circle"
                       }
                     >
-                      {t.done && <>✓</>}
+                      {todo.done && <>✓</>}
                     </span>
-                    <div className={t.done ? "done" : ""}>{t.text}</div>
+                    <div className={todo.done ? "done" : ""}>{todo.text}</div>
                     <button
                       style={{ fontSize: "15px" }}
                       className="button"
                       onClick={(e) => {
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
                         e.stopPropagation();
-                        handleDelete(t);
+                        setTodoWasDeleted(true);
                       }}
                     >
                       ╳
@@ -257,16 +243,55 @@ export const Todos: React.FC<TodosProps> = ({
                       className="button"
                       onClick={() => {
                         setShowModal(true);
-                        setTodo(t);
-                        setEditedText(t.text);
+                        setEditedText(todo.text);
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
                       }}
                     >
                       ✎
                     </button>
-                    <button className="button" onClick={() => handleChangePriority("A", t)}>A</button>
-                    <button className="button" onClick={() => handleChangePriority("B", t)}>B</button>
-                    <button className="button" onClick={() => handleChangePriority("C", t)}>C</button>
-                    <button className="button" onClick={() => handleChangePriority("None", t)}>⚐</button>
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
+                        setPriority("A");
+                        setPriorityWasChanged(true);
+
+                      }}
+                    >
+                      A
+                    </button>
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
+                        setPriority("B");
+                        setPriorityWasChanged(true);
+
+                      }}
+                    >
+                      B
+                    </button>
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
+                        setPriority("C");
+                        setPriorityWasChanged(true);
+
+                      }}
+                    >
+                      C
+                    </button>
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setIds({ dateId: todaysTodos.id, todoId: todo.id });
+                        setPriorityWasChanged(true);
+                        setPriority("None");
+                      }}
+                    >
+                      ⚐
+                    </button>
                   </div>
                 )
             )
@@ -275,7 +300,7 @@ export const Todos: React.FC<TodosProps> = ({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleAddTodo();
+          setTodoWasAdded(true);
         }}
       >
         <input
@@ -285,7 +310,6 @@ export const Todos: React.FC<TodosProps> = ({
         />
         <button type="submit">+</button>
       </form>
-      {error}
     </div>
   );
 };
