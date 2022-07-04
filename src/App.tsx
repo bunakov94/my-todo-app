@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Calendar, Todos, Notes } from "./Components";
 import { leapMonths, months } from "./Components/Calendar/utils";
 import "./App.css";
-import { Test } from "./Components/Todos/Test";
 
 function App() {
   const [date, setDate] = useState<Date>(new Date());
