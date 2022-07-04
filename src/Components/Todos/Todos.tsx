@@ -63,7 +63,7 @@ export const Todos: React.FC<TodosProps> = ({
         .todos.filter((td: any) => td.id !== ids.todoId),
     };
     await updateDoc(todo, newFields);
-    ids({});
+    setIds({});
     setTodoWasDeleted(false);
   };
 
