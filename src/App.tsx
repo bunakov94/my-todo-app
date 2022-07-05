@@ -60,7 +60,6 @@ function App() {
         <div className="content-divider"></div>
         <Notes
           currentDay={currentDay}
-          daysOfMonth={daysOfMonth}
           currentMonth={currentMonth}
           currentYear={currentYear}
         />
