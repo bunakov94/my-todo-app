@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Calendar, Todos, Notes } from "./Components";
 import { leapMonths, months } from "./Components/Calendar/utils";
 import "./App.css";
+import { Header } from "./Components/Header/Header";
 
 function App() {
   const [date, setDate] = useState<Date>(new Date());
@@ -42,6 +43,7 @@ function App() {
 
   return (
     <div>
+      <Header />
       <Calendar
         setCurrentMonth={setCurrentMonth}
         currentMonth={currentMonth}

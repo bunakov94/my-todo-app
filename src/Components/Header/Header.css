@@ -1,0 +1,15 @@
+header{
+    background-color: #7A8FFF;
+    padding: 20px 100px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+svg {
+    position: relative;
+    top: 8px;
+    height: 30px;
+    height: 30px;
+}
