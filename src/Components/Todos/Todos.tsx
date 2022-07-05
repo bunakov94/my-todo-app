@@ -197,7 +197,7 @@ export const Todos: React.FC<TodosProps> = ({
         </div>
       )}
 
-      <h2>Todos</h2>
+      <h3>Todos</h3>
 
       {allTodos.map((todaysTodos) =>
         todaysTodos &&

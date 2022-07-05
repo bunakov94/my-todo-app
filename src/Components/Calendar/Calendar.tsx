@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./Calendar.css";
 import { leapMonths, months } from "./utils";
 
@@ -21,6 +21,10 @@ export const Calendar: React.FC<CalendarProps> = ({
   currentMonth,
   currentYear,
 }) => {
+  const [weeks, setWeeks] = useState([
+    { Mon: "", Tue: "", Wed: "", Thu: "", Fri: "", Sat: "", Sun: "" },
+  ]);
+
   const getDayOfWeek = (day: number) => {
     if (day === 1) {
       return "Mon";
@@ -66,7 +70,6 @@ export const Calendar: React.FC<CalendarProps> = ({
       return "December";
     }
   };
-
   const checkIfLeapYear = (year: number) => {
     if (year % 4 === 0 && year % 100 !== 0) {
       return true;
@@ -89,7 +92,7 @@ export const Calendar: React.FC<CalendarProps> = ({
 
   return (
     <div>
-      <h2 className="month-name">{getMonth(currentMonth)}</h2>
+      <h3 className="month-name">{getMonth(currentMonth)}</h3>
       <hr />
       <ul className="current-month">
         <li
@@ -102,7 +105,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             }
           }}
         >
-          {"<"}
+          <span>{"<"}</span>
         </li>
         {daysOfMonth.map((day) => (
           <>
@@ -140,7 +143,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             }
           }}
         >
-          {">"}
+          <span>{">"}</span>
         </li>
       </ul>
       <hr />

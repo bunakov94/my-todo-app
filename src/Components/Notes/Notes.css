@@ -1,17 +1,14 @@
-.notes {
-    width: 50%;
+
+.notes .circle {
+  background-color: white;
 }
 
-.notes .circle{
-    background-color: white;
+.notes h3 {
+  text-align: center;
 }
 
-.notes h2{
-    text-align: center;
-}
-
-.note{
-    display: flex;
+.note {
+  display: flex;
   flex-direction: row;
   align-items: center;
   text-align: center;

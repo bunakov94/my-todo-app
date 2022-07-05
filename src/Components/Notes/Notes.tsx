@@ -199,7 +199,7 @@ export const Notes: React.FC<NotesProps> = ({
         </div>
       )}
 
-      <h2>Notes</h2>
+      <h3>Notes</h3>
 
       {allNotes.map((todaysNotes) =>
         todaysNotes &&
@@ -212,7 +212,9 @@ export const Notes: React.FC<NotesProps> = ({
                 todaysNotes.month === currentMonth &&
                 todaysNotes.year === currentYear && (
                   <div className="note">
-                    <span className="circle">•</span>
+                    <span className="circle">
+                    <strong>-</strong>
+                    </span>
                     <div>{note.text}</div>
                     <button
                       style={{ fontSize: "15px" }}
@@ -254,11 +256,13 @@ export const Notes: React.FC<NotesProps> = ({
         <button type="submit">+</button>
       </form>
 
-      <h2>Global Notes</h2>
+      <h3>Global Notes</h3>
 
       {globalNotes.map((note: any) => (
         <div className="note">
-          <span className="circle">•</span>
+          <span className="circle">
+            <strong>-</strong>
+          </span>
           <div>{note.note}</div>
           <button
             style={{ fontSize: "15px" }}
